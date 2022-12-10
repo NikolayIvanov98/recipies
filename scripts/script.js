@@ -2,6 +2,7 @@ import fetchData, {
   apiBaseUrl,
   categoriesEndpoint,
   fetchMealsByCategory,
+  fetchMealsById,
 } from "./fetchData.js";
 import {
   readFromStorage,
@@ -14,11 +15,60 @@ const categoriesFilterDiv = document.getElementById(
 );
 const resultsContainer = document.getElementById("results-contaienr");
 
+async function visualiseMealById(id) {
+  const {
+    meals: [recipe],
+  } = await fetchMealsById(id);
+  const {
+    strMeal,
+    strMealThumb,
+    strCategory,
+    strArea,
+    strInstructions,
+    strSource,
+  } = recipe;
+
+  resultsContainer.innerHTML = "";
+
+  const htmlString = `
+  <div>
+        <h2>${strMeal}</h2>
+
+        <h4>
+          <a
+            href="${strSource}"
+            target="_blank"
+            >Original source</a
+          >
+        </h4>
+        <img
+          src="${strMealThumb}"
+          alt="image"
+        />
+        <table>
+          <tr>
+            <th>Category</th>
+            <th>Origin</th>
+          </tr>
+          <tr>
+            <td>${strCategory}</td>
+            <td>${strArea}</td>
+          </tr>
+        </table>
+        <p>
+          ${strInstructions}
+        </p>
+      </div>
+  `;
+  resultsContainer.insertAdjacentHTML("beforeend", htmlString);
+}
+
 function createMealPreviewElement(meal) {
   const { idMeal, strMealThumb, strMeal } = meal;
   const recipeDiv = document.createElement("div");
   recipeDiv.className = "category-box";
   recipeDiv.setAttribute("id", idMeal);
+  recipeDiv.addEventListener("click", () => visualiseMealById(idMeal));
 
   const recipeImg = document.createElement("img");
   recipeImg.setAttribute("src", strMealThumb);
